@@ -9,8 +9,8 @@ output: pdf_document
 ```{r, echo=FALSE}
 library(ggplot2)
 library(curl)
-library(plyr)
 library(dplyr)
+
 
 gapminder_location<-curl(url = "https://raw.githubusercontent.com/resbaz/r-novice-gapminder-files/master/data/gapminder-FiveYearData.csv")
 gapminder<-read.csv(gapminder_location)
@@ -45,5 +45,14 @@ ggplot(subset(gapminder, continent %in% c("Asia", "Europe")),
 ggplot(gapminder, aes(x=continent, color=continent, fill=continent))+geom_bar(stat="count")
 
 ggplot(gapminder, aes(x=year, y=gdpPercap, fill=continent))+geom_bar(stat="identity", position=position_dodge())
+
+avg_gdp_continent <- gapminder %>% group_by(continent) %>% summarise(gdp=mean(gdpPercap)) %>%
+  ggplot(aes(x=continent, y=gdp), ylab= "Average GDP")+geom_point() 
+
+avg_gdp_continent + ylab("Average GDP") + xlab("Continents")
+
+mutate(gapminder,gdp=gdpPercap*pop) %>% filter(year==2007) %>%
+  ggplot(aes(x=continent,y=gdp))+
+  geom_point()+scale_y_log10() 
 ```
 
