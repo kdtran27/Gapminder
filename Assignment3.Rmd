@@ -1,90 +1,57 @@
 ---
-title: "Assessing Gapminder Data"
+title: "Assignment3"
 author: "Kathleen Tran/Eric Almeida"
 date: "3/6/2017"
 output: pdf_document
 ---
 
 
-```{r, results='hide', message=FALSE, warning=FALSE, echo=FALSE}
+```{r, echo=FALSE}
 library(ggplot2)
 library(curl)
-library(dplyr)
 
 gapminder_location<-curl(url = "https://raw.githubusercontent.com/resbaz/r-novice-gapminder-files/master/data/gapminder-FiveYearData.csv")
 gapminder<-read.csv(gapminder_location)
 ```
 
-###We wanted to look at how life expectancy played a part in GDP per Capita, not only via all the continents available but also comparing two continents to see similarities, differences, and variations. Different types of graphs were created to see if trends existed.
+```{r, echo=FALSE}
+ggplot(gapminder, aes(x=lifeExp, y=gdpPercap))+geom_point()+scale_y_log10()+geom_smooth(method="lm")
 
-```{r, results='hide', message=FALSE, warning=FALSE, echo=FALSE}
-ggplot(gapminder, aes(x=lifeExp, y=gdpPercap, color=continent))+geom_point()+scale_y_log10()+geom_smooth(method=lm)+ggtitle("The Life Expectancy of 5 continents via GDP per Capita")
+ggplot(gapminder, aes(x=lifeExp, y=pop))+geom_point()+scale_y_log10()+geom_smooth(method="lm")
+```
 
-ggplot(gapminder, aes(x=year, y=gdpPercap, fill=continent))+geom_bar(stat="identity", position=position_dodge())
-
+```{r, echo=FALSE}
 ggplot(subset(gapminder, continent %in% c("Asia", "Africa")),
        aes(x=lifeExp,
            y=gdpPercap,
-           color=continent))+geom_point()+geom_smooth()+ggtitle("Asia and Africa")
-
-ggplot(subset(gapminder, continent %in% c("Asia", "Africa")),
-       aes(x=lifeExp,
-           y=gdpPercap,
-           color=continent))+geom_bar(stat="identity")
+           color=continent))+geom_point()+geom_smooth()+ggtitle("Looking at Life Expectancy via GDP per Capita in Asia and Africa")
 
 ggplot(subset(gapminder, continent %in% c("Americas", "Europe")),
        aes(x=lifeExp,
            y=gdpPercap,
-           color=continent))+geom_point()+geom_smooth()+ggtitle("Americas and Europe")
-
-ggplot(subset(gapminder, continent %in% c("Americas", "Europe")),
-       aes(x=lifeExp,
-           y=gdpPercap,
-           color=continent))+geom_bar(stat="identity")
+           color=continent))+geom_point()+ggtitle("Looking at Life Expectancy via GDP per Capita in the 
+          Americas and Europe")
 
 ggplot(subset(gapminder, continent %in% c("Oceania", "Asia")),
        aes(x=lifeExp,
            y=gdpPercap,
-           color=continent))+geom_point()+geom_smooth()+ggtitle("Oceania and Asia")
+           color=continent))+geom_point()+ggtitle("Looking at Life Expectancy via GDP per Capita in Oceania and Asia")
+```
 
-ggplot(subset(gapminder, continent %in% c("Oceania", "Asia")),
-       aes(x=lifeExp,
-           y=gdpPercap,
-           color=continent))+geom_bar(stat="identity")
+```{r, echo=FALSE}
+ggplot(gapminder, aes(x=pop, y=gdpPercap, color=continent))+geom_bar(stat="identity")
 
 ggplot(gapminder, aes(x=lifeExp, y=gdpPercap, color=continent))+geom_bar(stat="identity")
-```
-
-###We wanted to explore each continent and its average population, average GDP per Capita, and average life expectancy at a specific year. We chose to look at 2007 because it is the most recent year with available data.
-
-```{r, results='hide', message=FALSE, warning=FALSE, echo=FALSE}
-gPop <- group_by(gapminder, continent)
-summarise(gPop,Population=mean(pop))
-gapminder %>% group_by(continent) %>% filter (year==2007) %>% summarise(Population=mean(pop))%>% ggplot(aes(x=continent,y=Population, color=continent, fill=continent))+geom_bar(stat="identity")
-
-gGDP <- group_by(gapminder, continent)
-summarise(gGDP, GDP=mean(gdpPercap))
-gapminder %>% group_by(continent) %>% filter (year==2007) %>% summarise(GDP=mean(gdpPercap)) %>% ggplot(aes(x=continent,y=GDP, color=continent, fill=continent))+geom_bar(stat="identity")
-
-gExp <- group_by(gapminder, continent)
-summarise(gExp,LifeExpectancy=mean(lifeExp))
-gapminder %>% group_by(continent) %>% filter (year==2007) %>% summarise(LifeExpectancy=mean(lifeExp)) %>% ggplot(aes(x=continent,y=LifeExpectancy, color=continent, fill=continent))+geom_bar(stat="identity")
-```
-
-```{r, results='hide', message=FALSE, warning=FALSE, echo=FALSE}
-ggplot(gapminder, aes(x=pop, y=gdpPercap, color=continent))+geom_bar(stat="identity")
 
 ggplot(gapminder, aes(x=lifeExp, y=year, color=continent))+geom_bar(stat="identity")
 
-ggplot(gapminder, aes(x=lifeExp, y=pop))+geom_point()+scale_y_log10()+geom_smooth(method="lm")
+ggplot(subset(gapminder, continent %in% c("Asia", "Europe")),
+       aes(x=lifeExp,
+           y=gdpPercap,
+           color=continent))+geom_bar(stat="identity")
 
-avg_gdp_continent <- gapminder %>% group_by(continent) %>% summarise(gdp=mean(gdpPercap)) %>%
-  ggplot(aes(x=continent, y=gdp), ylab= "Average GDP")+geom_point() 
+ggplot(gapminder, aes(x=continent, y=pop, color=continent, by=country, fill=continent))+geom_bar(stat="identity")
 
-avg_gdp_continent + ylab("Average GDP") + xlab("Continents")
-
-mutate(gapminder,gdp=gdpPercap*pop) %>% filter(year==2007) %>%
-  ggplot(aes(x=continent,y=gdp))+
-  geom_point()+scale_y_log10() 
+ggplot(gapminder, aes(x=year, y=gdpPercap, fill=continent))+geom_bar(stat="identity", position=position_dodge())
 ```
 
