@@ -9,8 +9,18 @@ output: pdf_document
 ```{r, echo=FALSE}
 library(ggplot2)
 library(curl)
+<<<<<<< HEAD
+=======
+library(dplyr)
+library(tidyr)
+
+
+
+gapminder_location <-"https://raw.githubusercontent.com/resbaz/r-novice-gapminder-files/master/data/gapminder-FiveYearData.csv"
+>>>>>>> 556a0dcb2603295e8edd1a877c951b9598ebb140
 
 gapminder_location<-curl(url = "https://raw.githubusercontent.com/resbaz/r-novice-gapminder-files/master/data/gapminder-FiveYearData.csv")
+
 gapminder<-read.csv(gapminder_location)
 ```
 
@@ -35,7 +45,35 @@ ggplot(subset(gapminder, continent %in% c("Americas", "Europe")),
 ggplot(subset(gapminder, continent %in% c("Oceania", "Asia")),
        aes(x=lifeExp,
            y=gdpPercap,
+<<<<<<< HEAD
            color=continent))+geom_point()+ggtitle("Looking at Life Expectancy via GDP per Capita in Oceania and Asia")
+=======
+           color=continent))+geom_bar(stat="identity")
+
+ggplot(gapminder, aes(x=lifeExp, y=gdpPercap, color=continent))+geom_bar(stat="identity")
+```
+
+###We wanted to explore each continent and its average population, average GDP per Capita, and average life expectancy at a specific year. We chose to look at 2007 because it is the most recent year with available data.
+
+```{r, results='hide', message=FALSE, warning=FALSE, echo=FALSE}
+gPop <- group_by(gapminder, continent)
+summarise(gPop,Population=mean(pop))
+gapminder %>% group_by(continent) %>% filter (year==2007) %>% summarise(Population=mean(pop))%>% ggplot(aes(x=continent,y=Population, color=continent, fill=continent))+geom_bar(stat="identity")
+
+
+ggplot(gapminder, aes(x=continent, color=continent, fill=continent))+geom_bar(stat="count")
+```
+```{r, echo=FALSE}
+ggplot(gapminder, aes(x=year, y=gdpPercap, fill=continent))+geom_bar(stat="identity", position=position_dodge())
+
+gGDP <- group_by(gapminder, continent)
+summarise(gGDP, GDP=mean(gdpPercap))
+gapminder %>% group_by(continent) %>% filter (year==2007) %>% summarise(GDP=mean(gdpPercap)) %>% ggplot(aes(x=continent,y=GDP, color=continent, fill=continent))+geom_bar(stat="identity")
+
+gExp <- group_by(gapminder, continent)
+summarise(gExp,LifeExpectancy=mean(lifeExp))
+gapminder %>% group_by(continent) %>% filter (year==2007) %>% summarise(LifeExpectancy=mean(lifeExp)) %>% ggplot(aes(x=continent,y=LifeExpectancy, color=continent, fill=continent))+geom_bar(stat="identity")
+>>>>>>> 556a0dcb2603295e8edd1a877c951b9598ebb140
 ```
 
 ```{r, echo=FALSE}
@@ -55,3 +93,28 @@ ggplot(gapminder, aes(x=continent, y=pop, color=continent, by=country, fill=cont
 ggplot(gapminder, aes(x=year, y=gdpPercap, fill=continent))+geom_bar(stat="identity", position=position_dodge())
 ```
 
+
+As seen in the previous graphs, we had focused only on one year, 2007. Now we’ve taken it one step further and wanted to look at all the years the data provided for each continent, side by side, to see the changes between each continent in each year as well as a trend as the years went on.
+```{r, results='hide', message=FALSE, warning=FALSE, echo=FALSE}
+
+gGDP <- group_by(gapminder, year, continent)
+summarise(gGDP, GDP=mean(gdpPercap))
+gapminder %>% group_by(year, continent) %>%
+  summarise(GDP=mean(gdpPercap)) %>%
+  ggplot(aes(x=year, y=GDP, fill=continent))+
+  geom_bar(stat="identity", position=position_dodge())+
+  scale_x_discrete(name="Year", limits=c("1952", "1957", "1962",
+                                         "1967", "1972", "1977",
+                                         "1982", "1987", "1992",
+                                         "1997", "2002", "2007"))
+
+gPop <- group_by(gapminder, year, continent)
+summarise(gPop,Population=mean(pop))
+gapminder %>% group_by(year, continent) %>%
+  summarise(Population=mean(pop)) %>%
+  ggplot(aes(x=year, y=Population, color=continent, fill=continent)) +
+  geom_bar(stat="identity", position="dodge")+
+  scale_x_discrete(name="Year", limits=c("1952", "1957", "1962",
+                                         "1967", "1972", "1977",
+                                         "1982", "1987", "1992",
+                                         "1997", "2002", "2007"))
