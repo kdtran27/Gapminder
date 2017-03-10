@@ -10,9 +10,10 @@ output: pdf_document
 library(ggplot2)
 library(curl)
 library(dplyr)
+library(tidyr)
 
 
-gapminder_location<-curl(url = "https://raw.githubusercontent.com/resbaz/r-novice-gapminder-files/master/data/gapminder-FiveYearData.csv")
+gapminder_location <-"https://raw.githubusercontent.com/resbaz/r-novice-gapminder-files/master/data/gapminder-FiveYearData.csv"
 gapminder<-read.csv(gapminder_location)
 
 ggplot(subset(gapminder, continent %in% c("Asia", "Africa")),
@@ -43,7 +44,8 @@ ggplot(subset(gapminder, continent %in% c("Asia", "Europe")),
            color=continent))+geom_bar(stat="identity")
 
 ggplot(gapminder, aes(x=continent, color=continent, fill=continent))+geom_bar(stat="count")
-
+```
+```{r, echo=FALSE}
 ggplot(gapminder, aes(x=year, y=gdpPercap, fill=continent))+geom_bar(stat="identity", position=position_dodge())
 
 avg_gdp_continent <- gapminder %>% group_by(continent) %>% summarise(gdp=mean(gdpPercap)) %>%
@@ -56,3 +58,28 @@ mutate(gapminder,gdp=gdpPercap*pop) %>% filter(year==2007) %>%
   geom_point()+scale_y_log10() 
 ```
 
+
+As seen in the previous graphs, we had focused only on one year, 2007. Now we’ve taken it one step further and wanted to look at all the years the data provided for each continent, side by side, to see the changes between each continent in each year as well as a trend as the years went on.
+```{r, results='hide', message=FALSE, warning=FALSE, echo=FALSE}
+
+gGDP <- group_by(gapminder, year, continent)
+summarise(gGDP, GDP=mean(gdpPercap))
+gapminder %>% group_by(year, continent) %>%
+  summarise(GDP=mean(gdpPercap)) %>%
+  ggplot(aes(x=year, y=GDP, fill=continent))+
+  geom_bar(stat="identity", position=position_dodge())+
+  scale_x_discrete(name="Year", limits=c("1952", "1957", "1962",
+                                         "1967", "1972", "1977",
+                                         "1982", "1987", "1992",
+                                         "1997", "2002", "2007"))
+
+gPop <- group_by(gapminder, year, continent)
+summarise(gPop,Population=mean(pop))
+gapminder %>% group_by(year, continent) %>%
+  summarise(Population=mean(pop)) %>%
+  ggplot(aes(x=year, y=Population, color=continent, fill=continent)) +
+  geom_bar(stat="identity", position="dodge")+
+  scale_x_discrete(name="Year", limits=c("1952", "1957", "1962",
+                                         "1967", "1972", "1977",
+                                         "1982", "1987", "1992",
+                                         "1997", "2002", "2007"))
